@@ -85,9 +85,70 @@ export const likePost = async(req,res) =>{
 
     if(!post) return res.status(400).json({message:"Something went wrong"})
     
+        await post.updateOne({$addToSet:{likes:likeKarneWala}})
+        await post.save()
+
+        return res.status(200).json({message:"Post Liked"})
+
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+export const dislikePost = async(req,res) =>{
+    try{
+    const likeKarneWala = req.id;
+    const postKiId = req.params.id;
+    const post = await Post.findById(postKiId)
+
+    if(!post) return res.status(400).json({message:"Something went wrong"})
+    
+        await post.updateOne({$pull:{likes:likeKarneWala}})
+        await post.save()
+
+        return res.status(200).json({message:"Post Liked"})
         
     }
     catch(error){
+        console.log(error)
+    }
+}
+
+export const addComment = async(req,res) = ()=>{
+    try {
+        const postId = req.params.id;
+        const commentKarneWala = req.id;
+
+        const post=await Post.findById(postId)
+        const {text} = req.body;
+        if(!text) return res.status(400).json({message:"Failed to add comment"})
+
+            const comment = await Comment.create({
+                text,
+                author:commentKarneWala,
+                post:postId
+            }).populate({
+                path:'author',
+                select:'username,profilePicture'
+            })
+
+            post.comments.push(comments._id)
+            await post.save()
+
+            return res.status(200).json({message:"Comment Added"},comment)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+export const getAllComments = async(req,res) =>{
+    try {
+        const postId = req.params.id;
+        const post = await Post.findById(postId);
+        
+    } catch (error) {
         console.log(error)
     }
 }
