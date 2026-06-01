@@ -5,6 +5,8 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import connectDb from "./utils/db.js"
 import userRoute from "./routes/user.routes.js"
+import postRoute from "./routes/post.routes.js"
+import messageRoute from "./routes/message.routes.js"
 
 const PORT=process.env.PORT
 
