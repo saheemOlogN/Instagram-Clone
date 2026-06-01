@@ -146,7 +146,7 @@ export const addComment = async(req,res) = ()=>{
 export const getAllComments = async(req,res) =>{
     try {
         const postId = req.params.id;
-        const post = await Post.findById(postId);
+        const comments = await Comment.find({post:postId}).populate('author','username,profilePicture')
         
     } catch (error) {
         console.log(error)
