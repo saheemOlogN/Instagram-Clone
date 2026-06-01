@@ -147,7 +147,66 @@ export const getAllComments = async(req,res) =>{
     try {
         const postId = req.params.id;
         const comments = await Comment.find({post:postId}).populate('author','username,profilePicture')
-        
+        if(!comments) return res.status(400).json({message:"no comments"})
+
+            return res.status(200).json(comments)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const deletePost = async(req,res) =>{
+    try {
+        const postId = req.params.id;
+        const authorId=req.id;
+        const post = await Post.findById(postId)
+
+        if(!post) return res.status(400).json({message:"No posts available to delete"})
+
+            if(post.author.toString()!=authorId) return res.status(400).json({message:"You arent the owner of this post"})
+            
+                await Post.findByIdAndDelete(postId)
+
+            
+
+                let user = await User.findById(authorId)
+
+                user.posts = user.posts.filter(id=> id.toString()!=postId)
+                await user.save()
+
+
+                await Comment.deleteMany({post:postId})
+
+                    return res.status(200).json({message:"Post deleted successfully"})
+
+
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const bookmarkPost = async(req,res) =>{
+    try {
+        const postId = req.params.id;
+        const authorId = req.id;
+
+        const post = await Post.findById(postId)
+        if(!post) return res.status(400).json({message:"Post not found"})
+
+            const user = await User.findById(authorId)
+            if(user.bookmarks.includes(post._id)){
+
+                await user.updateOne({$pull:{bookmarks:post._id}})
+                await user.save()
+                return res.status(200).json({message:"Post Unbookmarked"})
+
+            }else{
+                 await user.updateOne({$push:{bookmarks:post._id}})
+                await user.save()
+                return res.status(200).json({message:"Post Bookmarked"})
+
+            }
     } catch (error) {
         console.log(error)
     }
