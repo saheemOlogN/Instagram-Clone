@@ -5,10 +5,10 @@ const conversationSchema = new mongoose.model({
         type:mongoose.Schema.Types.ObjectId,
         ref:'User'
     }],
-    message : [{
+    messages : [{
         type:MongooseError.Schema.Types.ObjectId,
         ref:'Message'
     }
     ]
 })
-export const Converssation = mongoose.model('Conversation',conversationSchema)
+export const Conversation = mongoose.model('Conversation',conversationSchema)
