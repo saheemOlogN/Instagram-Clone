@@ -1,7 +1,7 @@
 import express from "express";
 import upload from "../middlewares/multer.js";
 import { addComment, addNewPost, bookmarkPost, deletePost, dislikePost, getAllComments, getAllPosts, getUserPosts, likePost } from "../controllers/post.controller.js";
-
+import isAuthenticated from "../middlewares/isAuthenticated.js"
 const router = express.Router()
 
 router.route("/addpost").post(isAuthenticated,upload.single('image'),addNewPost)

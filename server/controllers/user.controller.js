@@ -13,7 +13,7 @@ export const register = async (req,res) =>{
         }
         const user=await User.findOne({email})
         if(user){
-            return res.status(401).json({message:"user already exists"})
+            return res.status(401).json({message:"user already exists",success:false})
         }
         const hashedPassword = await bcrypt.hash(password,10);
         await User.create({
@@ -31,10 +31,22 @@ export const login = async (req,res) =>{
     try {
         const {email,password} = req.body;
         let user= await User.findOne({email})
-        if(!user) return res.status(401).json({message:"Invalid email"})
+        if(!user) return res.status(401).json({message:"Invalid email",success:false})
             const isCorrectPassword = await bcrypt.compare(password,user.password)
-        if(!isCorrectPassword) return res.status(401).json({message:"Invalid Password"})
-        user = {
+        if(!isCorrectPassword) return res.status(401).json({message:"Invalid Password",success:false})
+    
+            const token = await jwt.sign({userId:user._id},process.env.SECRET_KEY,{expiresIn:'3d'})
+            const populatedPosts = await Promise.all(
+                user.posts.map(async (postId)=>{
+                    const post = await Post.findById(postId)
+
+                    if(post.author.equals(user._id)){
+                        return post;
+                    }
+                    return null;
+                })
+            )
+                user = {
             _id:user._id,
             username:user.username,
             email:user.email,
@@ -42,9 +54,8 @@ export const login = async (req,res) =>{
             bio:user.bio,
             followers:user.followers,
             following:user.following,
-            posts:user.posts
+            posts:populatedPosts
         }
-            const token = await jwt.sign({userId:user._id},process.env.SECRET_KEY,{expiresIn:'3d'})
             return res.cookie('token',token , {httpOnly:true , sameSite:'strict' ,maxAge:1*24*60*60*1000}).json({message:`Welcome back ${user.username}`,user})
 
     } catch (error) {
@@ -66,8 +77,8 @@ export const getProfile = async(req,res) =>{
     try {
         const userId = req.params.id;
         let user = await User.findById(userId).select('-password')
-        if(!user) return res.status(400).json({message:"user doesnt exists"})
-         return res.status(200).json({message:"User fetched",user})  
+        if(!user) return res.status(400).json({message:"user doesnt exists",success:false})
+         return res.status(200).json({message:"User fetched",user,success:true})  
  
     } catch (error) {
         console.log(error)
@@ -80,7 +91,7 @@ export const editProfile = async(req,res)=>{
         const profilePicture=req.file;
 
         const user=await User.findById(userId)
-            if(!user) return res.status(400).json({message:"failed to update"})
+            if(!user) return res.status(400).json({message:"failed to update",success:false})
           if(bio) user.bio=bio;
             if(gender) user.gender=gender;
 
@@ -93,7 +104,7 @@ export const editProfile = async(req,res)=>{
         }
         
             await user.save()
-            return res.status(200).json({message:"changes made",user})
+            return res.status(200).json({message:"changes made",user,success:true})
     } catch (error) {
         console.log(error)
     }
@@ -102,7 +113,7 @@ export const editProfile = async(req,res)=>{
 export const getSuggestedUser = async(req,res)=>{
     try {
         const suggestedUser = await User.find({_id:{$ne:req.id}}).select("-password")
-        if(!suggestedUser) return res.status(400).json({message:"Currently no users"})
+        if(!suggestedUser) return res.status(400).json({message:"Currently no users",success:false})
 
             return res.status(200).json({
                 success:true,
@@ -118,7 +129,7 @@ export const followOrUnfollow = async(req,res)=>{
     try {
         const followKarneWala = req.id;
         const jiskoFollowKarnaHai = req.params.id;
-        if (followKarneWala==jiskoFollowKarnaHai) return res.status(400).json({message:"You cant follow yourself"})
+        if (followKarneWala==jiskoFollowKarnaHai) return res.status(400).json({message:"You cant follow yourself",success:false})
 
             const user = await User.findById(followKarneWala)
             const targetUser = await User.findById(jiskoFollowKarnaHai)
@@ -131,14 +142,14 @@ export const followOrUnfollow = async(req,res)=>{
                     User.updateOne({_id:followKarneWala},{$pull:{following:jiskoFollowKarnaHai}}),
                     User.updateOne({_id:jiskoFollowKarnaHai},{$pull:{followers:followKarneWala}})
                 ])
-                return res.status(200).json({message:"unfollowed successfully"})
+                return res.status(200).json({message:"unfollowed successfully",success:true})
                 }
                  else{
                     await Promise.all([
                         User.updateOne({_id:followKarneWala},{$push:{following:jiskoFollowKarnaHai}}),
                         User.updateOne({_id:jiskoFollowKarnaHai},{$push:{followers:followKarneWala}})
                     ])
-                      return res.status(200).json({message:"followed successfully"})
+                      return res.status(200).json({message:"followed successfully",success:true})
                 }
 
         } catch (error) {

@@ -22,6 +22,8 @@ const corsOptions = {
 app.use(cors(corsOptions))
 
 app.use("/api/v1/user",userRoute)
+app.use("/api/v1/post",postRoute)
+app.use("/api/v1/message",messageRoute)
 
 
 app.listen(PORT || 3000,()=>{

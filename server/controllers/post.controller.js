@@ -8,7 +8,7 @@ export const addNewPost = async(req,res)=>{
         const {caption} = req.body;
         const authorId = req.id;
 
-        if(!image) return res.status(400).json({message:"Image is required"})
+        if(!image) return res.status(400).json({message:"Image is required",success:false})
             const optimizedImageBuffer = await sharp (image.buffer)
         .resize({width:800,height:800,fit:'inside'})
             .toFormat('jpeg',{quality:80})
@@ -29,7 +29,7 @@ export const addNewPost = async(req,res)=>{
         }
 
         await post.populate({path:'author'}).select('-password')
-        return res.status(200).json({message:"Posted successfully"},post)
+        return res.status(200).json({message:"Posted successfully",success:true},post,)
 
     } catch (error) {
         console.log(error)
@@ -49,7 +49,7 @@ export const getAllPosts = async (req,res) =>{
         }
     })
 
-    return res.status(200).json({posts})
+    return res.status(200).json({posts,success:true})
 }
 catch(error){
     console.log(error)
@@ -70,7 +70,7 @@ export const getUserPosts = async(req,res) =>{
                 select:'username,profilePicture'
             }
         })
-        return res.status(200).json({posts})
+        return res.status(200).json({posts,success:true})
     } catch (error) {
         console.log(error)
     }
@@ -83,12 +83,12 @@ export const likePost = async(req,res) =>{
     const postKiId = req.params.id;
     const post = await Post.findById(postKiId)
 
-    if(!post) return res.status(400).json({message:"Something went wrong"})
+    if(!post) return res.status(400).json({message:"Something went wrong",success:false})
     
         await post.updateOne({$addToSet:{likes:likeKarneWala}})
         await post.save()
 
-        return res.status(200).json({message:"Post Liked"})
+        return res.status(200).json({message:"Post Liked",success:true})
 
     }
     catch(error){
@@ -102,12 +102,12 @@ export const dislikePost = async(req,res) =>{
     const postKiId = req.params.id;
     const post = await Post.findById(postKiId)
 
-    if(!post) return res.status(400).json({message:"Something went wrong"})
+    if(!post) return res.status(400).json({message:"Something went wrong",success:false})
     
         await post.updateOne({$pull:{likes:likeKarneWala}})
         await post.save()
 
-        return res.status(200).json({message:"Post Liked"})
+        return res.status(200).json({message:"Post Liked",success:true})
         
     }
     catch(error){
@@ -115,14 +115,14 @@ export const dislikePost = async(req,res) =>{
     }
 }
 
-export const addComment = async(req,res) = ()=>{
+export const addComment = async(req,res) =>{
     try {
         const postId = req.params.id;
         const commentKarneWala = req.id;
 
         const post=await Post.findById(postId)
         const {text} = req.body;
-        if(!text) return res.status(400).json({message:"Failed to add comment"})
+        if(!text) return res.status(400).json({message:"Failed to add comment",success:false})
 
             const comment = await Comment.create({
                 text,
@@ -136,7 +136,7 @@ export const addComment = async(req,res) = ()=>{
             post.comments.push(comments._id)
             await post.save()
 
-            return res.status(200).json({message:"Comment Added"},comment)
+            return res.status(200).json({message:"Comment Added",success:true},comment)
     } catch (error) {
         console.log(error)
     }
@@ -147,7 +147,7 @@ export const getAllComments = async(req,res) =>{
     try {
         const postId = req.params.id;
         const comments = await Comment.find({post:postId}).populate('author','username,profilePicture')
-        if(!comments) return res.status(400).json({message:"no comments"})
+        if(!comments) return res.status(400).json({message:"no comments",success:false})
 
             return res.status(200).json(comments)
     } catch (error) {
@@ -163,7 +163,7 @@ export const deletePost = async(req,res) =>{
 
         if(!post) return res.status(400).json({message:"No posts available to delete"})
 
-            if(post.author.toString()!=authorId) return res.status(400).json({message:"You arent the owner of this post"})
+            if(post.author.toString()!=authorId) return res.status(400).json({message:"You arent the owner of this post",success:false})
             
                 await Post.findByIdAndDelete(postId)
 
@@ -177,7 +177,7 @@ export const deletePost = async(req,res) =>{
 
                 await Comment.deleteMany({post:postId})
 
-                    return res.status(200).json({message:"Post deleted successfully"})
+                    return res.status(200).json({message:"Post deleted successfully",success:true})
 
 
 
@@ -192,19 +192,19 @@ export const bookmarkPost = async(req,res) =>{
         const authorId = req.id;
 
         const post = await Post.findById(postId)
-        if(!post) return res.status(400).json({message:"Post not found"})
+        if(!post) return res.status(400).json({message:"Post not found",success:false})
 
             const user = await User.findById(authorId)
             if(user.bookmarks.includes(post._id)){
 
                 await user.updateOne({$pull:{bookmarks:post._id}})
                 await user.save()
-                return res.status(200).json({message:"Post Unbookmarked"})
+                return res.status(200).json({message:"Post Unbookmarked",success:true})
 
             }else{
                  await user.updateOne({$push:{bookmarks:post._id}})
                 await user.save()
-                return res.status(200).json({message:"Post Bookmarked"})
+                return res.status(200).json({message:"Post Bookmarked",success:true})
 
             }
     } catch (error) {
