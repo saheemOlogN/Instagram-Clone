@@ -1,19 +1,20 @@
 import { User } from "../models/user.model.js";
+import { Post } from "../models/post.model.js";
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
-import upload from "../middlewares/multer.js"
 
 export const register = async (req,res) =>{
     try {
         const {username,email,password} = req.body;
         if(!username || !email || !password){
-            return res.status(401).json({message:"empty field"})
+            return res.status(400).json({message:"All fields are required",success:false})
         }
-        const user=await User.findOne({email})
+        const user=await User.findOne({$or:[{email},{username}]})
         if(user){
-            return res.status(401).json({message:"user already exists",success:false})
+            const message = user.email === email ? "Email already exists" : "Username already exists";
+            return res.status(400).json({message,success:false})
         }
         const hashedPassword = await bcrypt.hash(password,10);
         await User.create({
@@ -21,9 +22,14 @@ export const register = async (req,res) =>{
             email,
             password:hashedPassword
         })
-        res.status(200).json({message:"User Created successfully"})
+        return res.status(201).json({message:"User created successfully",success:true})
     } catch (error) {
         console.log(error)
+        if(error.code === 11000){
+            const field = Object.keys(error.keyPattern || {})[0] || "user";
+            return res.status(400).json({message:`${field} already exists`,success:false})
+        }
+        return res.status(500).json({message:"Internal server error",success:false})
     }
 }
 
@@ -56,20 +62,23 @@ export const login = async (req,res) =>{
             following:user.following,
             posts:populatedPosts
         }
-            return res.cookie('token',token , {httpOnly:true , sameSite:'strict' ,maxAge:1*24*60*60*1000}).json({message:`Welcome back ${user.username}`,user})
+            return res.cookie('token',token , {httpOnly:true , sameSite:'strict' ,maxAge:1*24*60*60*1000}).json({message:`Welcome back ${user.username}`,user,success:true})
 
     } catch (error) {
         console.log(error)
+        return res.status(500).json({message:"Internal server error",success:false})
     }
 }
 
 export const logout = async (_,res) => {
   try{
     return res.cookie('token','',{maxAge:0}).json({
-        message:"Logout Successfully"
+        message:"Logout Successfully",
+        success:true
     });
 }catch(error){
     console.log(error)
+    return res.status(500).json({message:"Internal server error",success:false})
 }
 }
 
@@ -82,6 +91,7 @@ export const getProfile = async(req,res) =>{
  
     } catch (error) {
         console.log(error)
+        return res.status(500).json({message:"Internal server error",success:false})
     }
 }
 export const editProfile = async(req,res)=>{
@@ -107,6 +117,7 @@ export const editProfile = async(req,res)=>{
             return res.status(200).json({message:"changes made",user,success:true})
     } catch (error) {
         console.log(error)
+        return res.status(500).json({message:"Internal server error",success:false})
     }
 }
 
@@ -121,6 +132,7 @@ export const getSuggestedUser = async(req,res)=>{
             })
     } catch (error) {
        console.log(error) 
+       return res.status(500).json({message:"Internal server error",success:false})
     }
 
 }
@@ -154,5 +166,6 @@ export const followOrUnfollow = async(req,res)=>{
 
         } catch (error) {
         console.log(error)
+        return res.status(500).json({message:"Internal server error",success:false})
     }
 }

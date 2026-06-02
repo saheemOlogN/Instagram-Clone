@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {Input} from './ui/input'
 import {Button} from './ui/button'
 import axios from 'axios'
@@ -28,12 +28,12 @@ const Signup = () => {
             })
 
             if(res.data.success){
-                toast.succcess(res.data.message)
+                toast.success(res.data.message)
             }
             
         } catch (error) {
             console.log(error)
-            toast.error(error.response.data.message)
+            toast.error(error.response?.data?.message || "Something went wrong")
         }
 
     }
