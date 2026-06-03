@@ -1,11 +1,37 @@
 
 import Signup from "./components/Signup"
+import Signin from "./components/Signin"
+import MainLayout from "./components/MainLayout"
+import Home from "./components/Home"
+import {createBrowserRouter, RouterProvider} from "react-router-dom"
 
+const browserRouter = createBrowserRouter([
+  {
+    path:'/',
+    element:<MainLayout />,
+    children:[
+      {
+        path:'/',
+        element:<Home/>
+      }
+    ]
+  },
+
+  {
+    path:'/signin',
+    element:<Signin />
+  },
+   {
+    path:'/signup',
+    element:<Signup />
+  },
+
+])
 function App() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center">
-      <Signup />
-    </div>
+    <>
+    <RouterProvider router = {browserRouter} />
+    </>
   )
 }
 
