@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 import { MoreHorizontal } from 'lucide-react'
@@ -7,8 +7,23 @@ import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { FiMessageCircle } from "react-icons/fi";
 import { IoIosSend } from "react-icons/io";
 import { FaRegBookmark } from "react-icons/fa6";
+import CommentDialog from './CommentDialog'
 
 const Post = () => {
+    const [text, setText] = useState("")
+
+    const changeEventHandler = (e) => {
+        const inputText = e.target.value;
+
+        if (inputText.trim()) {
+            setText(inputText)
+        }
+        else {
+            setText("")
+        }
+
+    }
+
     return (
         <div className='my-8 w-full max-w-sm mx-auto'>
             <div className='flex items-center justify-between'>
@@ -19,7 +34,7 @@ const Post = () => {
                         <AvatarFallback>CN</AvatarFallback>
 
                     </Avatar>
-                    <h1>Username</h1>
+                    <h1>Skibdi Dop Dop</h1>
                 </div>
                 <Dialog>
                     <DialogTrigger asChild>
@@ -51,6 +66,29 @@ const Post = () => {
 
                 <FaRegBookmark className='cursor-pointer hover:text-gray-600' />
             </div>
+            <span className='font-medium block mb-1'>67 Likes</span>
+
+            <p>
+                <span className='font-medium mr-3'>Username</span>
+                Im bouta kick Kaido's butt
+            </p>
+            <span>View All 10 comments</span>
+            <CommentDialog />
+                <div className='flex justify-between'>
+                    <input type="text"
+                        placeholder="Add a comment"
+                        value={text}
+                        onChange={changeEventHandler}
+                        className='outline-none text-sm w-full font-medium'
+                    />
+
+                    {
+                        text && <span className='text-[#3BADF8]'>Post</span>
+                    }
+                </div>
+
+
+            
 
         </div>
 
