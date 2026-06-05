@@ -11,6 +11,7 @@ import CommentDialog from './CommentDialog'
 
 const Post = () => {
     const [text, setText] = useState("")
+    const [open, setOpen] = useState(false)
 
     const changeEventHandler = (e) => {
         const inputText = e.target.value;
@@ -60,7 +61,7 @@ const Post = () => {
             <div className='flex items-center justify-between my-2'>
                 <div className='flex items-center gap-3'>
                     <FaRegHeart className='cursor-pointer hover:text-gray-600' />
-                    <FiMessageCircle className='cursor-pointer hover:text-gray-600' />
+                    <FiMessageCircle onClick={()=>setOpen(true)} className='cursor-pointer hover:text-gray-600' />
                     <IoIosSend className='cursor-pointer hover:text-gray-600' />
                 </div>
 
@@ -72,8 +73,8 @@ const Post = () => {
                 <span className='font-medium mr-3'>Username</span>
                 Im bouta kick Kaido's butt
             </p>
-            <span>View All 10 comments</span>
-            <CommentDialog />
+            <span onClick={()=>setOpen(true)}>View All 10 comments</span>
+            <CommentDialog open={open} setOpen={setOpen}/>
                 <div className='flex justify-between'>
                     <input type="text"
                         placeholder="Add a comment"
