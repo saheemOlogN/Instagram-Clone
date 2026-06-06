@@ -1,5 +1,5 @@
 import React from 'react'
-import { Dialog, DialogContent } from './ui/dialog'
+import { Dialog, DialogContent, DialogTitle } from './ui/dialog'
 
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { Link } from 'react-router-dom'
@@ -26,6 +26,7 @@ const CommentDialog = ({ open, setOpen }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen} >
       <DialogContent onInteractOutside={() => setOpen(false)} className='max-w-5xl p-0 flex flex-col'>
+        <DialogTitle className='sr-only'>Comments</DialogTitle>
         <div className='flex flex-1 '>
           <div className='w-1/2'>
             <img className='w-full h-full object-cover rounded-l-lg' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcAOZ0UcyYsrRhxUkZk6nG66WTLg-NhiTEcg&s" alt="" />
@@ -53,6 +54,7 @@ const CommentDialog = ({ open, setOpen }) => {
                 </DialogTrigger>
 
                 <DialogContent className='flex flex-col items-center text-center'>
+                  <DialogTitle className='sr-only'>Post options</DialogTitle>
                   <div className='cursor-pointer  w-full text-[#ED4956] font-bold'>
                    Unfollow
                   </div>

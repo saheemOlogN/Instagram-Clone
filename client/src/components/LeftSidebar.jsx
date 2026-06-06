@@ -1,9 +1,45 @@
-import React from 'react'
+import { useState } from 'react'
 import { Home, LogOut, MessageCircle, PlusSquare, Search, TrendingUp,Heart } from 'lucide-react'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { toast } from "sonner";
+import { useDispatch, useSelector } from 'react-redux'
+import { setAuthUser } from '../redux/authSlice'
+import CreatePost from './CreatePost'
+
+
+
+
+
+const LeftSidebar = () => {
+    const navigate=useNavigate()
+    const {user} = useSelector(store => store.auth)
+    const [open, setOpen] = useState(false)
+
+    const dispatch=useDispatch()
+    const sideBarHandler = (textType)=>{
+    if(textType=='Logout') logoutHandler()
+        else if(textType=='Create') setOpen(true)
+}
+
+    const logoutHandler = async()=>{
+    
+    try {
+        const res=await axios.get("http://localhost:8000/api/v1/user/logout",{withCredentials:true})
+        if(res.data.success) {
+            dispatch(setAuthUser(null))
+           navigate("/signin")
+            toast.success(res.data.message || "Logged out successfully")
+
+
+        }
+    } catch (error) {
+        toast.error(error.response.data.message)
+    }
+
+}
+
 
 const sidebarItems = [
     { icon: <Home />, text: "Home" },
@@ -15,7 +51,7 @@ const sidebarItems = [
     {
         icon: (
             <Avatar>
-                <AvatarImage className='w-6 h-6' src="https://github.com/shadcn.png" />
+                <AvatarImage className='w-6 h-6' src={user?.profilePicture} />
                 <AvatarFallback>CN</AvatarFallback>
             </Avatar>
         ), text: "Profile"
@@ -24,31 +60,6 @@ const sidebarItems = [
 
 
 ]
-
-
-
-
-const LeftSidebar = () => {
-    const navigate=useNavigate()
-    const sideBarHandler = (textType)=>{
-    if(textType=='Logout') logoutHandler()
-}
-
-    const logoutHandler = async()=>{
-    
-    try {
-        const res=await axios.get("http://localhost:8000/api/v1/user/logout",{withCredentials:true})
-        if(res.data.success) {
-           navigate("/signin")
-            toast.success(res.data.message || "Logged out successfully")
-
-
-        }
-    } catch (error) {
-        toast.error(error.response.data.message)
-    }
-
-}
     return (
         <div className='fixed top-0 z-10 left-0 px-4 border-r border-gray-300 w-[16%] h-screen'>
 
@@ -69,7 +80,7 @@ const LeftSidebar = () => {
             </div>
 
             </div>
-           
+           <CreatePost open={open} setOpen={setOpen}/>
         </div>
     )
 }

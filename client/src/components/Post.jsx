@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
-import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './ui/dialog'
 import { MoreHorizontal } from 'lucide-react'
 import { Button } from './ui/button'
 import { FaHeart, FaRegHeart } from "react-icons/fa";
@@ -9,7 +9,7 @@ import { IoIosSend } from "react-icons/io";
 import { FaRegBookmark } from "react-icons/fa6";
 import CommentDialog from './CommentDialog'
 
-const Post = () => {
+const Post = ({post}) => {
     const [text, setText] = useState("")
     const [open, setOpen] = useState(false)
 
@@ -31,11 +31,11 @@ const Post = () => {
 
                 <div className='flex items-center gap-2'>
                     <Avatar>
-                        <AvatarImage src='' alt='' />
+                        <AvatarImage src={post.author?.profilePicture} alt='' />
                         <AvatarFallback>CN</AvatarFallback>
 
                     </Avatar>
-                    <h1>Skibdi Dop Dop</h1>
+                    <h1>{post.author?.username}</h1>
                 </div>
                 <Dialog>
                     <DialogTrigger asChild>
@@ -43,6 +43,7 @@ const Post = () => {
 
                     </DialogTrigger>
                     <DialogContent className='flex flex-col items-center text-sm text-center '>
+                        <DialogTitle className='sr-only'>Post options</DialogTitle>
                         <Button variant='ghost' className='cursor-pointer w-fit text-[#ED4956]'>Unfollow</Button>
                         <Button variant='ghost' className='cursor-pointer w-fit'>Add to Favourites</Button>
                         <Button variant='ghost' className='cursor-pointer w-fit font-bold'>Delete</Button>
@@ -53,7 +54,7 @@ const Post = () => {
             </div>
             <img
                 className='rounded-sm my-2 w-full aspect-square object-cover'
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcAOZ0UcyYsrRhxUkZk6nG66WTLg-NhiTEcg&s" alt=""
+                src={post.image} alt=""
             />
 
 
@@ -67,11 +68,11 @@ const Post = () => {
 
                 <FaRegBookmark className='cursor-pointer hover:text-gray-600' />
             </div>
-            <span className='font-medium block mb-1'>67 Likes</span>
+            <span className='font-medium block mb-1'>{post.likes.length} likes</span>
 
             <p>
-                <span className='font-medium mr-3'>Username</span>
-                Im bouta kick Kaido's butt
+                <span className='font-medium mr-3'>{post.author?.username}</span>
+                {post.caption}
             </p>
             <span onClick={()=>setOpen(true)}>View All 10 comments</span>
             <CommentDialog open={open} setOpen={setOpen}/>
