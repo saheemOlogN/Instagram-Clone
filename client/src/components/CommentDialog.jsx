@@ -1,4 +1,3 @@
-import React from 'react'
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog'
 
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
@@ -6,45 +5,30 @@ import { Link } from 'react-router-dom'
 import { MoreHorizontal } from 'lucide-react'
 import { DialogTrigger } from './ui/dialog'
 import { Button } from './ui/button'
-import { useState } from 'react'
 
-const CommentDialog = ({ open, setOpen }) => {
-  const [text, setText] = useState("")
-  const changeEventHandler =(e)=>{
-    const inputText=e.target.value;
-    if(inputText.trim()){
-      setText(inputText)
-    }
-    else{
-      setText("")
-    }
-  }
-
-  const sendMessageHandler = async ()=>{
-    alert(text)
-  }
+const CommentDialog = ({ open, setOpen, post, comments = [], text, changeEventHandler, commentHandler }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen} >
-      <DialogContent onInteractOutside={() => setOpen(false)} className='max-w-5xl p-0 flex flex-col'>
+      <DialogContent onInteractOutside={() => setOpen(false)} className='w-[96vw] max-w-[96vw] sm:max-w-[980px] h-[88vh] max-h-[720px] p-0 overflow-hidden'>
         <DialogTitle className='sr-only'>Comments</DialogTitle>
-        <div className='flex flex-1 '>
-          <div className='w-1/2'>
-            <img className='w-full h-full object-cover rounded-l-lg' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcAOZ0UcyYsrRhxUkZk6nG66WTLg-NhiTEcg&s" alt="" />
+        <div className='flex h-full min-h-0 flex-col md:flex-row'>
+          <div className='h-[45vh] md:h-full md:w-[58%] bg-black flex items-center justify-center'>
+            <img className='max-h-full max-w-full object-contain' src={post?.image} alt="" />
           </div>
-          <div className='w-1/2 flex flex-col'>
-            <div className='flex items-center justify-between p-4'>
+          <div className='flex min-h-0 flex-1 flex-col bg-white md:w-[42%]'>
+            <div className='flex shrink-0 items-center justify-between border-b p-4'>
               <div className='flex gap-3 items-center'>
 
                 <Link>
                   <Avatar>
-                    <AvatarImage />
+                    <AvatarImage src={post?.author?.profilePicture} />
                     <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
 
                 </Link>
 
                 <div>
-                  <Link className='font-semibold text-xs '>Username</Link>
+                  <Link className='font-semibold text-xs '>{post?.author?.username}</Link>
                 </div>
               </div>
 
@@ -64,15 +48,27 @@ const CommentDialog = ({ open, setOpen }) => {
                 </DialogContent>
               </Dialog>
             </div>
-            <hr />
-            <div className='flex-1 overflow-y-auto max-h-96 p-4'>
-              comments aaye ge
+            <div className='min-h-0 flex-1 overflow-y-auto p-4'>
+              {comments.length > 0 ? comments.map((comment) => (
+                <div key={comment._id} className='mb-4 flex gap-3'>
+                  <Avatar>
+                    <AvatarImage src={comment.author?.profilePicture} />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                  <p className='text-sm'>
+                    <span className='font-semibold mr-2'>{comment.author?.username}</span>
+                    {comment.text}
+                  </p>
+                </div>
+              )) : (
+                <p className='text-sm text-gray-500'>No comments yet.</p>
+              )}
             </div>
 
-            <div className='p-4'>
+            <div className='shrink-0 border-t p-4'>
               <div className='flex items-center gap-2'> 
-                <input type="text" placeholder="Add a comment..." className='w-full outline-none border-gray-300 p-2 rounded' />
-                <Button disabled={!text.trim()} variant='outline'>Post</Button>
+                <input value={text} onChange={changeEventHandler} type="text" placeholder="Add a comment..." className='w-full min-w-0 outline-none p-2 text-sm' />
+                <Button onClick={commentHandler} disabled={!text.trim()} variant='outline'>Post</Button>
               </div>
 
             </div>

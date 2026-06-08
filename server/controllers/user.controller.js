@@ -46,6 +46,8 @@ export const login = async (req,res) =>{
                 user.posts.map(async (postId)=>{
                     const post = await Post.findById(postId)
 
+                    if(!post) return null;
+
                     if(post.author.equals(user._id)){
                         return post;
                     }
@@ -60,7 +62,7 @@ export const login = async (req,res) =>{
             bio:user.bio,
             followers:user.followers,
             following:user.following,
-            posts:populatedPosts
+            posts:populatedPosts.filter(Boolean)
         }
             return res.cookie('token',token , {httpOnly:true , sameSite:'strict' ,maxAge:1*24*60*60*1000}).json({message:`Welcome back ${user.username}`,user,success:true})
 
