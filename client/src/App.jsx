@@ -3,6 +3,7 @@ import Signup from "./components/Signup"
 import Signin from "./components/Signin"
 import MainLayout from "./components/MainLayout"
 import Home from "./components/Home"
+import Profile from './components/Profile'
 import {createBrowserRouter, RouterProvider} from "react-router-dom"
 
 
@@ -14,7 +15,12 @@ const browserRouter = createBrowserRouter([
       {
         path:'/',
         element:<Home/>
-      }
+      },
+       {
+        path:'/profile/:id',
+        element:<Profile />
+      },
+
     ]
   },
 

@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { useDispatch, useSelector } from 'react-redux'
 import { setAuthUser } from '../redux/authSlice'
 import CreatePost from './CreatePost'
+import { setPosts } from '../redux/postSlice'
+
 
 
 
@@ -21,6 +23,7 @@ const LeftSidebar = () => {
     const sideBarHandler = (textType)=>{
     if(textType=='Logout') logoutHandler()
         else if(textType=='Create') setOpen(true)
+    else if(textType=='Profile') navigate(`/profile/${user._id}`)
 }
 
     const logoutHandler = async()=>{
@@ -29,6 +32,7 @@ const LeftSidebar = () => {
         const res=await axios.get("http://localhost:8000/api/v1/user/logout",{withCredentials:true})
         if(res.data.success) {
             dispatch(setAuthUser(null))
+    
            navigate("/signin")
             toast.success(res.data.message || "Logged out successfully")
 

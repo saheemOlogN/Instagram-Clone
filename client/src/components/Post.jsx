@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { setPosts } from '../redux/postSlice'
+import {Badge} from './ui/badge'
 
 const Post = ({ post }) => {
     const [text, setText] = useState("")
@@ -108,7 +109,13 @@ const Post = ({ post }) => {
                         <AvatarFallback>CN</AvatarFallback>
 
                     </Avatar>
-                    <h1>{post.author?.username}</h1>
+                    <div className='flex items-center gap-3'>
+                        <h1>{post.author?.username}</h1>
+                        {user._id===post.author._id && <Badge variant="secondary">Author</Badge> }
+                        
+
+                    </div>
+                    
                 </div>
                 <Dialog>
                     <DialogTrigger asChild>
@@ -152,12 +159,18 @@ const Post = ({ post }) => {
                 <FaRegBookmark className='cursor-pointer hover:text-gray-600' />
             </div>
             <span className='font-medium block mb-1'>{postLike} likes</span>
-                    
+
             <p>
                 <span className='font-medium mr-3'>{post.author?.username}</span>
                 {post.caption}
             </p>
-            <span onClick={() => setOpen(true)}>View All {comment?.length || 0} comments</span>
+            {
+                comment.length > 0 && (
+                    <span onClick={() => setOpen(true)}>View All {comment?.length || 0} comments</span>
+
+                )
+            }
+
             <CommentDialog open={open} setOpen={setOpen} post={post} comments={comment} text={text} changeEventHandler={changeEventHandler} commentHandler={commentHandler} />
             <div className='flex justify-between'>
                 <input type="text"
