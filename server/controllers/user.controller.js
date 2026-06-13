@@ -87,8 +87,13 @@ export const logout = async (_,res) => {
 export const getProfile = async(req,res) =>{
     try {
         const userId = req.params.id;
-        let user = await User.findById(userId).select('-password')
+        let user = await User.findById(userId).select("-password").populate({
+            path:'bookmarks',
+            options:{sort:{createdAt:-1}}
+        })
         if(!user) return res.status(400).json({message:"user doesnt exists",success:false})
+        user = user.toObject()
+        user.posts = await Post.find({author:userId}).sort({createdAt:-1})
          return res.status(200).json({message:"User fetched",user,success:true})  
  
     } catch (error) {

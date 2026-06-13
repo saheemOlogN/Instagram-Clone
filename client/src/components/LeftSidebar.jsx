@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { useDispatch, useSelector } from 'react-redux'
 import { setAuthUser } from '../redux/authSlice'
 import CreatePost from './CreatePost'
-import { setPosts } from '../redux/postSlice'
 
 
 
@@ -23,7 +22,8 @@ const LeftSidebar = () => {
     const sideBarHandler = (textType)=>{
     if(textType=='Logout') logoutHandler()
         else if(textType=='Create') setOpen(true)
-    else if(textType=='Profile') navigate(`/profile/${user._id}`)
+    else if(textType=='Profile' && user?._id) navigate(`/profile/${user._id}`)
+else if(textType=='Home') navigate("/")
 }
 
     const logoutHandler = async()=>{

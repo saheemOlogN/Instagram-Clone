@@ -1,4 +1,3 @@
-import React from 'react'
 import { useSelector } from 'react-redux'
 import { Avatar, AvatarImage,AvatarFallback } from './ui/avatar'
 import { Link } from 'react-router-dom'
@@ -27,7 +26,7 @@ const SuggestedUsers = () => {
 
 
                                 <div className=''>
-                                    <h1 className='font-semibold text-sm'><Link to={`./profile/${user?._id}`}>{user?.username}</Link></h1>
+                                    <h1 className='font-semibold text-sm'><Link to={`/profile/${user?._id}`}>{user?.username}</Link></h1>
                                     <span className='text-gray-600 text-sm'>{user?.bio || "Bio Here..."}</span>
                                 </div>
                                 <span className='absolute right-0 text-[#3BADF8] text-sm font-bold  cursor-pointer'>Follow</span>

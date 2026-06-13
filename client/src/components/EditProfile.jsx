@@ -1,13 +1,15 @@
-import { useSelector } from 'react-redux'
-import {Avatar,AvatarImage,AvatarFallback} from './ui/avatar'
-import { Link } from 'react-router-dom'
-import SuggestedUsers from './SuggestedUsers'
+import { Link } from "react-router-dom"
+import { useSelector } from "react-redux"
+import { Avatar,AvatarFallback,AvatarImage } from "./ui/avatar"
 
-const RightSideBar = () => {
-  const {user} = useSelector(store=>store.auth)
+const EditProfile = () => {
+     const {user} = useSelector(store=>store.auth)
   return (
-    <div className='w-fit my-10 pr-32'>
-      <div className='flex items-center gap-3'>
+    <div>
+        <section>
+            <h1 className='font-bold text-xl'>Edit Profile</h1>
+
+             <div className='flex items-center gap-3'>
 
         <Link to={`/profile/${user?._id}`}>
         <Avatar>
@@ -24,10 +26,9 @@ const RightSideBar = () => {
 
       </div>
 
-      <SuggestedUsers />
-
+        </section>
     </div>
   )
 }
 
-export default RightSideBar
+export default EditProfile

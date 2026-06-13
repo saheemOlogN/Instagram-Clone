@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 
 const Signup = () => {
+    const navigate = useNavigate()
     const [input, setInput] = useState({
         username: "",
         email: "",
@@ -37,8 +38,8 @@ const Signup = () => {
                     email: "",
                     password: ""
                 })
+                navigate("/signin")
             }
-            useNavigate("/signin")
 
         } catch (error) {
             console.log(error)
@@ -89,7 +90,7 @@ const Signup = () => {
                         onChange={changeEventHandler}
                     />
                 </div>
-                <Button type='submit'>Sign Up</Button>
+                <Button type='submit' disabled={loading}>{loading ? "Signing up..." : "Sign Up"}</Button>
                 <span className='text-center'>Already have an account? <Link to="/signin" className='text-blue-700'>Login</Link></span>
             </form>
         </div>
