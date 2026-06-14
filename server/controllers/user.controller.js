@@ -64,7 +64,7 @@ export const login = async (req,res) =>{
             following:user.following,
             posts:populatedPosts.filter(Boolean)
         }
-            return res.cookie('token',token , {httpOnly:true , sameSite:'strict' ,maxAge:1*24*60*60*1000}).json({message:`Welcome back ${user.username}`,user,success:true})
+            return res.cookie('token',token , {httpOnly:true , sameSite:'lax' ,path:'/' ,maxAge:1*24*60*60*1000}).json({message:`Welcome back ${user.username}`,user,success:true})
 
     } catch (error) {
         console.log(error)
@@ -74,7 +74,7 @@ export const login = async (req,res) =>{
 
 export const logout = async (_,res) => {
   try{
-    return res.cookie('token','',{maxAge:0}).json({
+    return res.cookie('token','',{path:'/' ,maxAge:0}).json({
         message:"Logout Successfully",
         success:true
     });
