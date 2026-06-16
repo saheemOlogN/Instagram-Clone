@@ -13,6 +13,7 @@ const storage = storageImport?.default || storageImport
 const persistConfig = {
   key: 'root',
   storage,
+  blacklist: ['socketio', 'chat'],
 }
 
 const rootReducer = combineReducers({
@@ -29,7 +30,8 @@ const store = configureStore({
    middleware: (getDefaultMiddleware) => 
     getDefaultMiddleware({
         serializableCheck:{
-            ignoredActions:[FLUSH,REHYDRATE,PAUSE,PERSIST,PURGE,REGISTER],
+            ignoredActions:[FLUSH,REHYDRATE,PAUSE,PERSIST,PURGE,REGISTER,'socketio/setSocket'],
+            ignoredPaths:['socketio.socket'],
         },
     }),
     devTools: true

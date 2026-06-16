@@ -23,6 +23,7 @@ const Post = ({ post }) => {
     const [liked, setLiked] = useState(post.likes.includes(user?._id) || false)
     const [postLike, setPostLike] = useState(post.likes.length)
     const [comment, setComment] = useState(post.comments)
+    const [isLikePending, setIsLikePending] = useState(false)
 
     const changeEventHandler = (e) => {
         const inputText = e.target.value;
@@ -35,26 +36,41 @@ const Post = ({ post }) => {
         }
 
     }
+    const updatePostLikes = (nextLiked) => {
+        const updatedPostData = posts.map(p => p._id === post._id ? {
+            ...p,
+            likes: nextLiked
+                ? (p.likes.includes(user._id) ? p.likes : [...p.likes, user._id])
+                : p.likes.filter(id => id != user._id)
+        } : p)
+        dispatch(setPosts(updatedPostData))
+    }
+
     const likeOrDislikeHandler = async () => {
+        if (isLikePending || !user?._id) return
+
+        const nextLiked = !liked
+        const nextPostLike = nextLiked ? postLike + 1 : postLike - 1
+
+        setIsLikePending(true)
+        setLiked(nextLiked)
+        setPostLike(nextPostLike)
+        updatePostLikes(nextLiked)
+
         try {
 
-            const action = liked ? 'dislike' : 'like'
+            const action = nextLiked ? 'like' : 'dislike'
             const res = await axios.get(`http://localhost:8000/api/v1/post/${post._id}/${action}`, { withCredentials: true })
-            if (res.data.success) {
-                const updatedLikes = liked ? postLike - 1 : postLike + 1
-                setPostLike(updatedLikes)
-                setLiked(!liked)
-
-                const updatedPostData = posts.map(p => p._id === post._id ? {
-                    ...p,
-                    likes: liked ? p.likes.filter(id => id != user._id) : [...p.likes, user._id]
-
-                } : p)
-                dispatch(setPosts(updatedPostData))
-                toast.success(res.data.message)
+            if (!res.data.success) {
+                throw new Error(res.data.message)
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "Something went wrong")
+            setLiked(!nextLiked)
+            setPostLike(postLike)
+            updatePostLikes(!nextLiked)
+            toast.error(error.response?.data?.message || error.message || "Something went wrong")
+        } finally {
+            setIsLikePending(false)
         }
     }
 

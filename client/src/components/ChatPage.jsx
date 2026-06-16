@@ -1,16 +1,46 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { setSelectedUser } from '../redux/authSlice'
 import { Button } from './ui/button'
 import { MessageCircle } from 'lucide-react'
 import Messages from './Messages'
+import axios from 'axios'
+import { setMessages } from '../redux/chatSlice'
 
 const ChatPage = () => {
     const { user, selectedUser,suggestedUsers } = useSelector(store => store.auth)
-    const {onlineUsers} = useSelector(store=>store.chat)
+    const {onlineUsers,messages} = useSelector(store=>store.chat)
+    const [textMessage,setTextMessage] = useState("")
+    
 
     const dispatch = useDispatch()
+
+    const sendMessageHandler = async(rid)=>{
+        if (!rid || !textMessage.trim()) return
+
+        try {
+            const res= await axios.post(`http://localhost:8000/api/v1/message/send/${rid}`,{textMessage},{
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                withCredentials:true
+            })
+
+            if(res.data.success){
+                dispatch(setMessages([...messages,res.data.newMessage]))
+                setTextMessage("")
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(()=>{
+        return ()=>(
+            dispatch(setSelectedUser(null))
+        )
+    },[])
 
     return (
         <div className='flex ml-[16%] h-screen'>
@@ -40,7 +70,7 @@ const ChatPage = () => {
                 </div>
             </section>
             {
-                setSelectedUser?(
+                selectedUser ? (
                     <section className='flex-1 border-1 border-1-gray-300 flex flex-col h-full'>
                     <div className='flex gap-3 items-center px-3 py-2 border-b border-gray-300  sticky top-0 bg-white z-10'>
                     <Avatar>
@@ -54,8 +84,8 @@ const ChatPage = () => {
                     </div>
                     <Messages selectedUser={selectedUser} />
                     <div className='flex items-center p-4  border-t-gray-300'>
-                        <input type="text" className='flex-1 mr-2 focus-visible:ring-transparent ' />
-                        <Button>Send</Button>
+                        <input value={textMessage} onChange={(e)=>setTextMessage(e.target.value)} type="text" className='flex-1 mr-2 focus-visible:ring-transparent ' />
+                        <Button onClick={()=>{sendMessageHandler(selectedUser?._id)}}>Send</Button>
                     </div>
                     </section>
 
