@@ -8,6 +8,13 @@ import { Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from 'react-redux'
 import { setAuthUser } from '../redux/authSlice'
 
+const loginEasterEggs = [
+    "Stop gooning, start rizzing.",
+    "Lock in. The feed misses you.",
+    "Main character mode loading.",
+    "Touch grass later. Sign in first.",
+]
+
 
 
 const Signin = () => {
@@ -57,6 +64,7 @@ const Signin = () => {
 
     }
     const { user } = useSelector(store=>store.auth)
+    const easterEgg = loginEasterEggs[input.email.length % loginEasterEggs.length]
  
 
     useEffect(()=>{
@@ -68,6 +76,7 @@ const Signin = () => {
                 <div className='my-4'>
                     <h1 className='text-center text-3xl font-bold tracking-tight'>Rizzgram</h1>
                     <p className='text-center text-sm text-muted-foreground'>Signin</p>
+                    <p className='mt-2 text-center text-xs font-medium text-primary'>{easterEgg}</p>
                 </div>
 
 
@@ -96,6 +105,7 @@ const Signin = () => {
                   loading ? (
                     <Button>
                       <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                      Start rizzing...
                     </Button>
                   ) :(
                     <Button type='submit' >Login</Button>

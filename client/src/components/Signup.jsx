@@ -6,6 +6,13 @@ import { toast } from 'sonner'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
+const signupEasterEggs = [
+    "New account, new lore.",
+    "Claim your username before the opps do.",
+    "Fresh profile. Zero crumbs.",
+    "Certified yap zone access pending.",
+]
+
 
 const Signup = () => {
     const navigate = useNavigate()
@@ -56,12 +63,15 @@ const Signup = () => {
         if(user) navigate("/")
     },[user, navigate])
 
+    const easterEgg = signupEasterEggs[input.username.length % signupEasterEggs.length]
+
     return (
         <div className='flex min-h-screen w-full items-center justify-center px-4 py-10'>
             <form onSubmit={signupHandler} className='glass-panel flex w-full max-w-md flex-col gap-5 rounded-2xl p-8'>
                 <div className='my-4'>
                     <h1 className='text-center text-3xl font-bold tracking-tight'>Rizzgram</h1>
                     <p className='text-center text-sm text-muted-foreground'>Create your account</p>
+                    <p className='mt-2 text-center text-xs font-medium text-primary'>{easterEgg}</p>
                 </div>
 
                 <div>
@@ -96,7 +106,7 @@ const Signup = () => {
                         onChange={changeEventHandler}
                     />
                 </div>
-                <Button type='submit' disabled={loading}>{loading ? "Signing up..." : "Sign Up"}</Button>
+                <Button type='submit' disabled={loading}>{loading ? "Cooking your aura..." : "Sign Up"}</Button>
                 <span className='text-center text-sm text-muted-foreground'>Already have an account? <Link to="/signin" className='font-semibold text-primary'>Login</Link></span>
             </form>
         </div>
