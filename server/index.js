@@ -35,6 +35,9 @@ app.use("/api/v1/post",postRoute)
 app.use("/api/v1/message",messageRoute)
 
 app.use(express.static(path.join(__dirname, "/client/dist")))
+app.get(/.*/,(req,res)=>{
+    res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"))
+})
 
 
 server.listen(PORT || 3000,()=>{
