@@ -2,12 +2,12 @@ import { Outlet } from 'react-router-dom'
 import LeftSidebar from './LeftSidebar'
 const MainLayout = () => {
     return (
-        <div>
+        <div className='min-h-screen'>
             <LeftSidebar />
 
-            <div>
+            <main className='min-h-screen pb-24 lg:pb-0 lg:pl-72'>
                 <Outlet />
-            </div>
+            </main>
         </div>
     )
 }

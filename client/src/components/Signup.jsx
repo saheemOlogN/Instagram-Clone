@@ -1,13 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { Link, useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 
 
 const Signup = () => {
     const navigate = useNavigate()
+    const { user } = useSelector(store=>store.auth)
     const [input, setInput] = useState({
         username: "",
         email: "",
@@ -24,7 +26,7 @@ const Signup = () => {
         console.log(input)
         try {
             setLoading(true)
-            const res = await axios.post('http://localhost:8000/api/v1/user/register', input, {
+            const res = await axios.post('/api/v1/user/register', input, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -48,21 +50,25 @@ const Signup = () => {
         finally {
             setLoading(false)
         }
-
     }
+
+    useEffect(()=>{
+        if(user) navigate("/")
+    },[user, navigate])
+
     return (
-        <div className='flex items-center w-screen h-screen justify-center'>
-            <form onSubmit={signupHandler} className='shadow-lg flex flex-col gap-5 p-8 '>
+        <div className='flex min-h-screen w-full items-center justify-center px-4 py-10'>
+            <form onSubmit={signupHandler} className='glass-panel flex w-full max-w-md flex-col gap-5 rounded-2xl p-8'>
                 <div className='my-4'>
-                    <h1 className='text-center font-bold text-xl'>Rizzgram</h1>
-                    <p className='text-center text-sm'>Signup To Start Rizzing </p>
+                    <h1 className='text-center text-3xl font-bold tracking-tight'>Rizzgram</h1>
+                    <p className='text-center text-sm text-muted-foreground'>Create your account</p>
                 </div>
 
                 <div>
                     <span className='font-medium'>Username</span>
                     <Input
                         type="text"
-                        className='focus-visible:ring-transparent my-2'
+                        className='my-2 bg-background focus-visible:ring-primary'
                         name="username"
                         value={input.username}
                         onChange={changeEventHandler}
@@ -73,7 +79,7 @@ const Signup = () => {
                     <span className='font-medium'>Email</span>
                     <Input
                         type="email"
-                        className='focus-visible:ring-transparent my-2'
+                        className='my-2 bg-background focus-visible:ring-primary'
                         name="email"
                         value={input.email}
                         onChange={changeEventHandler}
@@ -84,14 +90,14 @@ const Signup = () => {
                     <span className='font-medium'>Password</span>
                     <Input
                         type="password"
-                        className='focus-visible:ring-transparent my-2'
+                        className='my-2 bg-background focus-visible:ring-primary'
                         name="password"
                         value={input.password}
                         onChange={changeEventHandler}
                     />
                 </div>
                 <Button type='submit' disabled={loading}>{loading ? "Signing up..." : "Sign Up"}</Button>
-                <span className='text-center'>Already have an account? <Link to="/signin" className='text-blue-700'>Login</Link></span>
+                <span className='text-center text-sm text-muted-foreground'>Already have an account? <Link to="/signin" className='font-semibold text-primary'>Login</Link></span>
             </form>
         </div>
     )

@@ -208,19 +208,21 @@ export const bookmarkPost = async(req,res) =>{
         const post = await Post.findById(postId)
         if(!post) return res.status(400).json({message:"Post not found",success:false})
 
-            const user = await User.findById(authorId)
-            if(user.bookmarks.includes(post._id)){
+        const user = await User.findById(authorId)
+        if(!user) return res.status(400).json({message:"User not found",success:false})
 
-                await user.updateOne({$pull:{bookmarks:post._id}})
-                await user.save()
-                return res.status(200).json({message:"Post Unbookmarked",success:true})
-
-            }else{
-                 await user.updateOne({$push:{bookmarks:post._id}})
-                await user.save()
-                return res.status(200).json({message:"Post Bookmarked",success:true})
-
-            }
+        const isBookmarked = user.bookmarks.some(id => id.toString() === post._id.toString());
+        if(isBookmarked){
+            // remove from bookmark
+            user.bookmarks = user.bookmarks.filter(id => id.toString() !== post._id.toString());
+            await user.save();
+            return res.status(200).json({message:"Post Unbookmarked",success:true})
+        }else{
+            // add to bookmark
+            user.bookmarks.push(post._id);
+            await user.save();
+            return res.status(200).json({message:"Post Bookmarked",success:true})
+        }
     } catch (error) {
         console.log(error)
         return serverError(res)

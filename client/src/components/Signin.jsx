@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { Link, useNavigate} from 'react-router-dom'
 import { Loader2 } from "lucide-react";
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setAuthUser } from '../redux/authSlice'
 
 
@@ -29,7 +29,7 @@ const Signin = () => {
         console.log(input)
         try {
             setLoading(true)
-            const res = await axios.post('http://localhost:8000/api/v1/user/login', input, {
+            const res = await axios.post('/api/v1/user/login', input, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -56,12 +56,18 @@ const Signin = () => {
         }
 
     }
+    const { user } = useSelector(store=>store.auth)
+ 
+
+    useEffect(()=>{
+        if(user) navigate("/")
+    },[user, navigate])
     return (
-        <div className='flex items-center w-screen h-screen justify-center'>
-            <form onSubmit={signupHandler} className='shadow-lg flex flex-col gap-5 p-8 '>
+        <div className='flex min-h-screen w-full items-center justify-center px-4 py-10'>
+            <form onSubmit={signupHandler} className='glass-panel flex w-full max-w-md flex-col gap-5 rounded-2xl p-6 sm:p-8'>
                 <div className='my-4'>
-                    <h1 className='text-center font-bold text-xl'>Rizzgram</h1>
-                    <p className='text-center text-sm'>Signin </p>
+                    <h1 className='text-center text-3xl font-bold tracking-tight'>Rizzgram</h1>
+                    <p className='text-center text-sm text-muted-foreground'>Signin</p>
                 </div>
 
 
@@ -69,7 +75,7 @@ const Signin = () => {
                     <span className='font-medium'>Email</span>
                     <Input
                         type="email"
-                        className='focus-visible:ring-transparent my-2'
+                        className='my-2 focus-visible:ring-primary'
                         name="email"
                         value={input.email}
                         onChange={changeEventHandler}
@@ -80,7 +86,7 @@ const Signin = () => {
                     <span className='font-medium'>Password</span>
                     <Input
                         type="password"
-                        className='focus-visible:ring-transparent my-2'
+                        className='my-2 focus-visible:ring-primary'
                         name="password"
                         value={input.password}
                         onChange={changeEventHandler}
@@ -96,7 +102,7 @@ const Signin = () => {
                   )
                 }
     
-                 <span className='text-center'>Dont have an account? <Link to="/signup" className='text-blue-700'>Create one</Link></span>
+                 <span className='text-center text-sm text-muted-foreground'>Dont have an account? <Link to="/signup" className='font-semibold text-primary'>Create one</Link></span>
             </form>
         </div>
     )

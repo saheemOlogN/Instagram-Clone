@@ -62,7 +62,8 @@ export const login = async (req,res) =>{
             bio:user.bio,
             followers:user.followers,
             following:user.following,
-            posts:populatedPosts.filter(Boolean)
+            posts:populatedPosts.filter(Boolean),
+            bookmarks:user.bookmarks
         }
             return res.cookie('token',token , {httpOnly:true , sameSite:'lax' ,path:'/' ,maxAge:1*24*60*60*1000}).json({message:`Welcome back ${user.username}`,user,success:true})
 
@@ -87,13 +88,48 @@ export const logout = async (_,res) => {
 export const getProfile = async(req,res) =>{
     try {
         const userId = req.params.id;
-        let user = await User.findById(userId).select("-password").populate({
-            path:'bookmarks',
-            options:{sort:{createdAt:-1}}
-        })
+        let user = await User.findById(userId).select("-password")
+            .populate({
+                path:'bookmarks',
+                options:{sort:{createdAt:-1}},
+                populate:[
+                    {
+                        path:'author',
+                        select:'username profilePicture'
+                    },
+                    {
+                        path:'comments',
+                        options:{sort:{createdAt:-1}},
+                        populate:{
+                            path:'author',
+                            select:'username profilePicture'
+                        }
+                    }
+                ]
+            })
+            .populate({
+                path:'followers',
+                select:'username profilePicture bio'
+            })
+            .populate({
+                path:'following',
+                select:'username profilePicture bio'
+            })
         if(!user) return res.status(400).json({message:"user doesnt exists",success:false})
         user = user.toObject()
         user.posts = await Post.find({author:userId}).sort({createdAt:-1})
+            .populate({
+                path:'author',
+                select:'username profilePicture'
+            })
+            .populate({
+                path:'comments',
+                options:{sort:{createdAt:-1}},
+                populate:{
+                    path:'author',
+                    select:'username profilePicture'
+                }
+            })
          return res.status(200).json({message:"User fetched",user,success:true})  
  
     } catch (error) {
@@ -130,7 +166,10 @@ export const editProfile = async(req,res)=>{
 
 export const getSuggestedUser = async(req,res)=>{
     try {
-        const suggestedUser = await User.find({_id:{$ne:req.id}}).select("-password")
+        const user = await User.findById(req.id).select("following")
+        if(!user) return res.status(400).json({message:"User not found",success:false})
+
+        const suggestedUser = await User.find({_id:{$ne:req.id,$nin:user.following}}).select("-password")
         if(!suggestedUser) return res.status(400).json({message:"Currently no users",success:false})
 
             return res.status(200).json({
@@ -144,6 +183,24 @@ export const getSuggestedUser = async(req,res)=>{
 
 }
 
+export const searchUser = async(req,res)=>{
+    try {
+        const username = req.query.username?.trim().replace(/^@/, "")
+        if(!username) return res.status(400).json({message:"Username is required",success:false})
+
+        const escapedUsername = username.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        const user = await User.findOne({
+            username: { $regex: `^${escapedUsername}$`, $options: "i" }
+        }).select("-password")
+        if(!user) return res.status(404).json({message:"User not found",success:false})
+
+        return res.status(200).json({message:"User found",user,success:true})
+    } catch (error) {
+       console.log(error)
+       return res.status(500).json({message:"Internal server error",success:false})
+    }
+}
+
 export const followOrUnfollow = async(req,res)=>{
     try {
         const followKarneWala = req.id;
@@ -155,20 +212,20 @@ export const followOrUnfollow = async(req,res)=>{
 
             if(!user || !targetUser) return res.status(400).json({message:"User not found"})
 
-                const isFollowing = user.following.includes(jiskoFollowKarnaHai) 
+                const isFollowing = user.following.some(id => id.toString() === jiskoFollowKarnaHai) 
                 if(isFollowing){
                     await Promise.all([
                     User.updateOne({_id:followKarneWala},{$pull:{following:jiskoFollowKarnaHai}}),
                     User.updateOne({_id:jiskoFollowKarnaHai},{$pull:{followers:followKarneWala}})
                 ])
-                return res.status(200).json({message:"unfollowed successfully",success:true})
+                return res.status(200).json({message:"unfollowed successfully",success:true,following:false,userId:followKarneWala,targetUserId:jiskoFollowKarnaHai})
                 }
                  else{
                     await Promise.all([
-                        User.updateOne({_id:followKarneWala},{$push:{following:jiskoFollowKarnaHai}}),
-                        User.updateOne({_id:jiskoFollowKarnaHai},{$push:{followers:followKarneWala}})
+                        User.updateOne({_id:followKarneWala},{$addToSet:{following:jiskoFollowKarnaHai}}),
+                        User.updateOne({_id:jiskoFollowKarnaHai},{$addToSet:{followers:followKarneWala}})
                     ])
-                      return res.status(200).json({message:"followed successfully",success:true})
+                      return res.status(200).json({message:"followed successfully",success:true,following:true,userId:followKarneWala,targetUserId:jiskoFollowKarnaHai})
                 }
 
         } catch (error) {

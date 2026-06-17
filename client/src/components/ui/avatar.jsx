@@ -22,12 +22,16 @@ function Avatar({
 
 function AvatarImage({
   className,
+  src,
   ...props
 }) {
+  const imageSrc = src || "/user_profile.png"
+
   return (
     <AvatarPrimitive.Image
       data-slot="avatar-image"
       className={cn("aspect-square size-full rounded-full object-cover", className)}
+      src={imageSrc}
       {...props} />
   );
 }

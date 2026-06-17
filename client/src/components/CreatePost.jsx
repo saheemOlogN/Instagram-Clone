@@ -30,7 +30,7 @@ const CreatePost = ({ open, setOpen }) => {
     try {
           e.preventDefault();
       setLoading(true)
-      const res = await axios.post("http://localhost:8000/api/v1/post/addpost",formData,{
+      const res = await axios.post("/api/v1/post/addpost",formData,{
         headers:{
           'Content-Type':'multipart/form-data'
         },
@@ -74,10 +74,10 @@ const CreatePost = ({ open, setOpen }) => {
             </Avatar>
             <div>
               <h1 className='font-semibold text-xs'>{user?.username}</h1>
-              <span className='text-gray-600 text-xs'>bio here...</span>
+              {user?.bio && <span className='text-xs text-muted-foreground'>{user.bio}</span>}
             </div>
           </div>
-          <Textarea value={caption} onChange={(e) => setCaption(e.target.value)} className="focus-visible:ring-transparent border-none" placeholder="Write a caption...." />
+          <Textarea value={caption} onChange={(e) => setCaption(e.target.value)} className="border-none focus-visible:ring-primary" placeholder="Write a caption...." />
           {
             imagePreview && (
               <div className='w-full h-64 flex items-center justify-center'>
@@ -87,7 +87,7 @@ const CreatePost = ({ open, setOpen }) => {
           }
           <input ref={imageRef} type="file" onChange={fileChangeHandler} className='hidden' />
           <div className='flex justify-center flex-col gap-2'>
-            <Button type="button" onClick={() => imageRef.current.click()} className='w-fit mx-auto bg-[#0095F6] hover:bg-[#0f7dc5]'>
+            <Button type="button" onClick={() => imageRef.current.click()} className='mx-auto w-fit bg-primary hover:bg-primary/90'>
               Select From your device
             </Button>
             {
