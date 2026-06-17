@@ -9,9 +9,10 @@ import axios from 'axios'
 import { setMessages } from '../redux/chatSlice'
 
 const ChatPage = () => {
-    const { user, selectedUser,suggestedUsers } = useSelector(store => store.auth)
+    const { user, selectedUser } = useSelector(store => store.auth)
     const {onlineUsers,messages} = useSelector(store=>store.chat)
     const [textMessage,setTextMessage] = useState("")
+    const [followingUsers,setFollowingUsers] = useState([])
     
 
     const dispatch = useDispatch()
@@ -37,6 +38,21 @@ const ChatPage = () => {
     }
 
     useEffect(()=>{
+        const fetchFollowingUsers = async()=>{
+            try {
+                const res = await axios.get('/api/v1/user/following',{withCredentials:true})
+                if(res.data.success){
+                    setFollowingUsers(res.data.users)
+                }
+            } catch (error) {
+                console.log(error.response?.data || error.message)
+            }
+        }
+
+        if(user) fetchFollowingUsers()
+    },[user])
+
+    useEffect(()=>{
         return ()=>(
             dispatch(setSelectedUser(null))
         )
@@ -50,28 +66,30 @@ const ChatPage = () => {
                 </div>
 
                 <div className='max-h-72 overflow-y-auto p-2 md:h-[calc(100vh-73px)] md:max-h-none'>
-                    {suggestedUsers.map((suggestedUser) => {
-                        const isOnline = onlineUsers.includes(suggestedUser._id)
-                        const isSelected = selectedUser?._id === suggestedUser?._id
+                    {followingUsers.length ? followingUsers.map((followingUser) => {
+                        const isOnline = onlineUsers.includes(followingUser._id)
+                        const isSelected = selectedUser?._id === followingUser?._id
                         return (
                             <button
-                                onClick={()=> dispatch(setSelectedUser(suggestedUser))}
-                                key={suggestedUser?._id}
+                                onClick={()=> dispatch(setSelectedUser(followingUser))}
+                                key={followingUser?._id}
                                 className={`flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-left transition-colors hover:bg-gray-100 hover:text-black ${isSelected ? 'bg-muted text-foreground' : 'text-foreground'}`}
                             >
                                 <Avatar className='w-14 h-14'>
-                                    <AvatarImage src={suggestedUser?.profilePicture} />
+                                    <AvatarImage src={followingUser?.profilePicture} />
                                     <AvatarFallback>CN</AvatarFallback>
                                 </Avatar>
 
                                 <div className='flex flex-col'>
-                                    <span className='font-medium'>{suggestedUser?.username}</span>
+                                    <span className='font-medium'>{followingUser?.username}</span>
                                     <span className={`text-xs font-bold ${isOnline ? 'text-green-500' : 'text-red-500'}`}>{isOnline ? 'online' : 'offline'}</span>
 
                                 </div>
                             </button>
                         )
-                    })}
+                    }) : (
+                        <p className='px-3 py-6 text-center text-sm text-muted-foreground'>Follow someone to start chatting.</p>
+                    )}
 
                 </div>
             </section>

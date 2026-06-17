@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import useGetUserProfile from '../redux/hooks/useGetUserProfile'
-import { Link,useParams } from 'react-router-dom'
+import { Link,useNavigate,useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { Heart,AtSign, MessageCircle } from 'lucide-react'
 import axios from 'axios'
 import { toast } from 'sonner'
-import { setAuthUser, setUserProfile } from '../redux/authSlice'
+import { setAuthUser, setSelectedUser, setUserProfile } from '../redux/authSlice'
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog'
 import CommentDialog from './CommentDialog'
 import { setPosts } from '../redux/postSlice'
@@ -17,6 +17,7 @@ const Profile = () => {
     const params = useParams()
     const userId = params.id
     useGetUserProfile(userId)
+    const navigate = useNavigate()
 
     const dispatch = useDispatch()
     const { user, userProfile } = useSelector(store => store.auth)
@@ -124,6 +125,17 @@ const Profile = () => {
         setSelectedPostComments(post.comments || [])
         setPostText('')
         setSelectedPostOpen(true)
+    }
+
+    const messageProfileHandler = () => {
+        if (!userProfile?._id) return
+        if (!isFollowing) {
+            toast.error("Follow this user first to message them")
+            return
+        }
+
+        dispatch(setSelectedUser(userProfile))
+        navigate('/chat')
     }
 
     const handlePostDialogChange = (open) => {
@@ -288,14 +300,14 @@ const Profile = () => {
                                             <Button onClick={followOrUnfollowHandler} disabled={followLoading} variant='secondary' className='h-8 hover:bg-secondary/80'>
                                                 {followLoading ? 'Please wait...' : 'Unfollow'}
                                             </Button>
-                                            <Button variant='secondary' className='h-8 hover:bg-secondary/80'>Message</Button>
+                                            <Button onClick={messageProfileHandler} variant='secondary' className='h-8 hover:bg-secondary/80'>Message</Button>
                                         </div>
                                     ) : (
                                         <div className='flex flex-wrap items-center justify-center gap-3 md:justify-start'>
                                             <Button onClick={followOrUnfollowHandler} disabled={followLoading} className='h-8 bg-primary text-primary-foreground hover:bg-primary/90'>
                                                 {followLoading ? 'Please wait...' : 'Follow'}
                                             </Button>
-                                            <Button variant='secondary' className='h-8 hover:bg-secondary/80'>Message</Button>
+                                            <Button onClick={messageProfileHandler} variant='secondary' className='h-8 hover:bg-secondary/80'>Message</Button>
                                         </div>
                                     )
                                 )

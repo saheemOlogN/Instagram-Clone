@@ -183,6 +183,26 @@ export const getSuggestedUser = async(req,res)=>{
 
 }
 
+export const getFollowingUsers = async(req,res)=>{
+    try {
+        const user = await User.findById(req.id)
+            .select("following")
+            .populate({
+                path:"following",
+                select:"username profilePicture bio"
+            })
+        if(!user) return res.status(400).json({message:"User not found",success:false})
+
+        return res.status(200).json({
+            success:true,
+            users:user.following
+        })
+    } catch (error) {
+       console.log(error)
+       return res.status(500).json({message:"Internal server error",success:false})
+    }
+}
+
 export const searchUser = async(req,res)=>{
     try {
         const username = req.query.username?.trim().replace(/^@/, "")

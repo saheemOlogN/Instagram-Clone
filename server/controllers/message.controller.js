@@ -1,6 +1,12 @@
 import { Conversation } from "../models/conversation.model.js";
 import { Message } from "../models/message.model.js";
+import { User } from "../models/user.model.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
+
+const canMessageUser = async(senderId, receiverId)=>{
+    const user = await User.findById(senderId).select("following")
+    return Boolean(user?.following?.some(id => id.toString() === receiverId))
+}
 
 export const sendMessage = async(req,res) =>{
     try {
@@ -8,6 +14,8 @@ export const sendMessage = async(req,res) =>{
         const receiverId=req.params.id;
         const {textMessage:message} = req.body;
         if(!message) return res.status(400).json({message:"Message is required",success:false})
+        const isFollowing = await canMessageUser(senderId, receiverId)
+        if(!isFollowing) return res.status(403).json({message:"You can only message people you follow",success:false})
 
         let conversation = await Conversation.findOne({
             participants:{$all:[senderId,receiverId]}
@@ -45,6 +53,9 @@ export const getMessage = async(req,res) =>{
     try {
         const receiverId = req.params.id;
         const senderId = req.id;
+        const isFollowing = await canMessageUser(senderId, receiverId)
+        if(!isFollowing) return res.status(403).json({message:"You can only view chats with people you follow",success:false})
+
         const conversation = await Conversation.findOne({
             participants:{$all:[senderId,receiverId]}
         }).populate("messages")
